@@ -1,3 +1,8 @@
+-- SQL Project - Data Cleaning
+
+-- https://www.kaggle.com/datasets/ikramshah512/amazon-products-sales-dataset-42k-items-2025
+
+
 SELECT * FROM amazon_product_sales_dataset.amazon_products_sales_data_uncleaned;
 
 -- Use a staging table to import raw data before cleaning.
@@ -13,9 +18,9 @@ SELECT *
 FROM (
 	SELECT *,
 		ROW_NUMBER() OVER (
-			PARTITION BY title, rating, number_of_reviews, bought_in_last_month, current_discounted_price, price_on_variant, listed_price, 
-            is_best_seller, is_sponsored, is_couponed , buy_box_availability, delivery_details, sustainability_badges, image_url,product_url,
-            collected_at
+			PARTITION BY title, rating, number_of_reviews, bought_in_last_month, current_discounted_price, price_on_variant, 
+            listed_price, is_best_seller, is_sponsored, is_couponed , buy_box_availability, delivery_details, sustainability_badges,
+            image_url,product_url,  collected_at
 			) AS row_num
 	FROM data_stagging
 		
@@ -130,9 +135,20 @@ UPDATE data_stagging
      
 -- change the date format
 UPDATE data_stagging
-SET collected_at = STR_TO_DATE(collected_at, '%m/%d/%Y %H:%i');   
+SET collected_at = STR_TO_DATE(collected_at, '%m/%d/%Y %H:%i');  
 
-select * from data_stagging;
+-- converting numeric text column into number format
+ALTER TABLE data_stagging
+MODIFY COLUMN rating DECIMAL(3,2),
+MODIFY COLUMN number_of_reviews INT,
+MODIFY COLUMN current_discounted_price DECIMAL(10,2);
+
+-- Count total rows after cleaning
+SELECT 
+  COUNT(*) AS total_rows
+FROM data_stagging;
+
+select * From data_stagging;
 
      
      
